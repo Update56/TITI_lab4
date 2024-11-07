@@ -1,26 +1,26 @@
-#include "defs.hpp"
+ï»¿#include "defs.hpp"
 #include "Scanner.hpp"
 
 void TScanner::PutPtr(int i) {
-    ptr = i;//âîññòàíîâèòü óêàçàòåëü
+    ptr = i;//Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ
 }
 
 int TScanner::GetPtr(void) {
-    return ptr;// çàïîìíèòü óêàçàòåëü
+    return ptr;// Ð·Ð°Ð¿Ð¾Ð¼Ð½Ð¸Ñ‚ÑŒ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ
 }
 
 void TScanner::PrintError(int i) {
-    printf("Error: invalid character (%d) at the position %d\n", i, ptr);
-    exit(EXIT_FAILURE); // Çàâåðøåíèå ïðîãðàììû ïðè îøèáêå
+    printf("Error: invalid character '%c' (%d) at the position %d\n", i, i, ptr);
+    exit(EXIT_FAILURE); // Ð—Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ðµ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ñ‹ Ð¿Ñ€Ð¸ Ð¾ÑˆÐ¸Ð±ÐºÐµ
 }
 
 
 int TScanner::Scanner(TypeLex l) {
-    int curr_len = 0; // òåêóùàÿ äëèíà ëåêñåìû
-    char curr_char; // òåêóùèé ñèìâîë
+    int curr_len = 0; // Ñ‚ÐµÐºÑƒÑ‰Ð°Ñ Ð´Ð»Ð¸Ð½Ð° Ð»ÐµÐºÑÐµÐ¼Ñ‹
+    char curr_char; // Ñ‚ÐµÐºÑƒÑ‰Ð¸Ð¹ ÑÐ¸Ð¼Ð²Ð¾Ð»
 
     while ((curr_char = t[ptr]) == ' ' || curr_char == '\n' || curr_char == '\t') {
-        ptr++; // ïðîïóñê íåçíà÷àùèõ ýëåìåíòîâ
+        ptr++; // Ð¿Ñ€Ð¾Ð¿ÑƒÑÐº Ð½ÐµÐ·Ð½Ð°Ñ‡Ð°Ñ‰Ð¸Ñ… ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð²
     }
 
     if (curr_char == '\0') {
@@ -28,19 +28,19 @@ int TScanner::Scanner(TypeLex l) {
         return typeEnd;
     }
 
-    // Îáðàáîòêà êîììåíòàðèåâ
+    // ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸ÐµÐ²
     if (curr_char == '/' && t[ptr + 1] == '/') {
-        // Ïðîïóñêàåì âñþ ñòðîêó
+        // ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ð²ÑÑŽ ÑÑ‚Ñ€Ð¾ÐºÑƒ
         while (curr_char != '\n' && curr_char != '\0') {
             curr_char = t[++ptr];
         }
         return Scanner(l);
     }
 
-    // Èäåíòèôèêàòîðû è êëþ÷åâûå ñëîâà
+    // Ð˜Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ñ‹ Ð¸ ÐºÐ»ÑŽÑ‡ÐµÐ²Ñ‹Ðµ ÑÐ»Ð¾Ð²Ð°
     if ((curr_char >= 'a' && curr_char <= 'z') || (curr_char >= 'A' && curr_char <= 'Z') || curr_char == '_') {
         do {
-            if (curr_len < MAX_LEX - 1) {  // Èçìåðåíèå äëÿ ïðåäîòâðàùåíèÿ ïåðåïîëíåíèÿ
+            if (curr_len < MAX_LEX - 1) {  // Ð˜Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
                 l[curr_len++] = curr_char;
             }
             else
@@ -54,20 +54,20 @@ int TScanner::Scanner(TypeLex l) {
             || (curr_char >= '0' && curr_char <= '9') || curr_char == '_');
         l[curr_len] = '\0';
 
-        // Ïðîâåðêà íà êëþ÷åâûå ñëîâà
+        // ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° ÐºÐ»ÑŽÑ‡ÐµÐ²Ñ‹Ðµ ÑÐ»Ð¾Ð²Ð°
         if (strcmp(l, "double") == 0) return typeDouble;
         else if (strcmp(l, "char") == 0) return typeChar;
         else if (strcmp(l, "main") == 0) return typeMain;
         else if (strcmp(l, "do") == 0) return typeDo;
         else if (strcmp(l, "while") == 0) return typeWhile;
         else if (strcmp(l, "class") == 0) return typeClass;
+        else if (strcmp(l, "const") == 0) return typeConst;
         else return typeId;
     }
-
-    // Îáðàáîòêà öåëûõ ÷èñåë
+    //Ð¾Ð±Ñ€Ð°Ñ‚Ð±Ð¾ÐºÐ° Ñ†ÐµÐ»Ñ‹Ñ…
     if (curr_char >= '1' && curr_char <= '9') {
         do {
-            if (curr_len < MAX_LEX - 1) {  // Èçìåðåíèå äëÿ ïðåäîòâðàùåíèÿ ïåðåïîëíåíèÿ
+            if (curr_len < MAX_LEX - 1) {  // Ð˜Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
                 l[curr_len++] = curr_char;
             }
             else {
@@ -75,23 +75,23 @@ int TScanner::Scanner(TypeLex l) {
                 exit(EXIT_FAILURE);
             }
             curr_char = t[++ptr];
-        } while (curr_char >= '1' && curr_char <= '9');
-
+        } while ((curr_char >= '1') && (curr_char <= '9'));
+        l[curr_len] = '\0';
         return constInt;
     }
-    // Îáðàáîòêà 16 ñ/ñ ÷èñåë
-    if (curr_char == '0' && t[ptr + 1] == 'x') {
-        //çàïèñûâàåì '0' è ...
-        if (curr_len < MAX_LEX - 1) {  // Èçìåðåíèå äëÿ ïðåäîòâðàùåíèÿ ïåðåïîëíåíèÿ
+    // ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ñ†ÐµÐ»Ñ‹Ñ… Ð¸ 16 Ñ/Ñ Ñ‡Ð¸ÑÐµÐ»(Ñ Ð½ÑƒÐ»Ñ)
+    if (curr_char == '0') {
+        if (curr_len < MAX_LEX - 1) {  // Ð˜Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
             l[curr_len++] = curr_char;
         }
         else {
             printf("Error: number exceeds maximum allowed length of characters.\n");
             exit(EXIT_FAILURE);
         }
-        curr_char = t[++ptr]; //...ïåðåõîäèì ê 'x'
-        do {
-            if (curr_len < MAX_LEX - 1) {  // Èçìåðåíèå äëÿ ïðåäîòâðàùåíèÿ ïåðåïîëíåíèÿ
+        curr_char = t[++ptr];
+        //Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° 16 Ñ/Ñ (Ñ 'x')
+        if (curr_char == 'x'){
+            if (curr_len < MAX_LEX - 1) {  // Ð˜Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
                 l[curr_len++] = curr_char;
             }
             else {
@@ -99,11 +99,51 @@ int TScanner::Scanner(TypeLex l) {
                 exit(EXIT_FAILURE);
             }
             curr_char = t[++ptr];
-        } while ((curr_char >= '0' && curr_char <= '9') || (curr_char >= 'a' && curr_char <= 'f'));
-
-        return constHex;
+            if((curr_char >= '0' && curr_char <= '9') || (curr_char >= 'a' && curr_char <= 'f')){
+                do {
+                    if (curr_len < MAX_LEX - 1) {  // Ð˜Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
+                        l[curr_len++] = curr_char;
+                    }
+                    else {
+                        printf("Error: number exceeds maximum allowed length of characters.\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    curr_char = t[++ptr];
+                } while ((curr_char >= '0' && curr_char <= '9') || (curr_char >= 'a' && curr_char <= 'f'));
+                l[curr_len] = '\0';
+                return constHex;
+            }
+            else
+            {
+                PrintError(curr_char);
+                return typeError;
+                exit(0);
+            }
+        }
+        //Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° 
+        else if (curr_char >= '0' && curr_char <= '9')
+        {
+            do{
+                if (curr_len < MAX_LEX - 1) {  // Ð˜Ð·Ð¼ÐµÑ€ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¿ÐµÑ€ÐµÐ¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ
+                    l[curr_len++] = curr_char;
+                }
+                else {
+                    printf("Error: number exceeds maximum allowed length of characters.\n");
+                    exit(EXIT_FAILURE);
+                }
+                curr_char = t[++ptr];
+            } while (curr_char >= '0' && curr_char <= '9');
+            l[curr_len] = '\0';
+            return constInt;
+        }
+        else
+        {
+            curr_char = t[++ptr];
+            l[curr_len] = '\0';
+            return constInt;
+        }
     }
-    // Îïåðàòîðû è ñïåöèàëüíûå ñèìâîëû
+    // ÐžÐ¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ñ‹ Ð¸ ÑÐ¿ÐµÑ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ðµ ÑÐ¸Ð¼Ð²Ð¾Ð»Ñ‹
     switch (curr_char) {
     case ',':
         l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
@@ -129,6 +169,9 @@ int TScanner::Scanner(TypeLex l) {
     case ']':
         l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
         return typeRightSqBracket;
+    case '.':
+        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
+        return typeAccessOperator;
     case '=':
         if (t[ptr + 1] == '=') {
             l[curr_len++] = curr_char; curr_char = t[++ptr];
@@ -145,6 +188,11 @@ int TScanner::Scanner(TypeLex l) {
             l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
             return typeMoreOrEq;
         }
+        else if (t[ptr + 1] == '>') {
+            l[curr_len++] = curr_char; curr_char = t[++ptr];
+            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
+            return typeShiftRight;
+        }
         else {
             l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
             return typeMore;
@@ -154,6 +202,11 @@ int TScanner::Scanner(TypeLex l) {
             l[curr_len++] = curr_char; curr_char = t[++ptr];
             l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
             return typeLessOrEq;
+        }
+        else if (t[ptr + 1] == '<') {
+            l[curr_len++] = curr_char; curr_char = t[++ptr];
+            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
+            return typeShiftLeft;
         }
         else {
             l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
@@ -196,7 +249,7 @@ int TScanner::Scanner(TypeLex l) {
 }
 
 
-// Ñ÷èòûâàíèå ôàéëà
+// Ð¡Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ñ„Ð°Ð¹Ð»Ð°
 void TScanner::GetData() {
     errno_t err = fopen_s(&in, "input.txt", "r");
     if (err != 0) {

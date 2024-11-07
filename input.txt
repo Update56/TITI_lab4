@@ -1,4 +1,10 @@
-main
-!!!!
-5656
-20+3
+<< >> <= >= => =< !=
+0
+000009
+//0xs
+const Const
+//r.w.r.g class Class ,  ( {} )
+while
+0xdasgdhjadg
+[]
+

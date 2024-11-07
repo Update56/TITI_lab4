@@ -21,6 +21,7 @@ typedef char TypeMod[MAX_TEXT];
 #define typeDo 13
 #define typeWhile 14
 #define typeClass 15
+#define typeConst 16
 // <----Константы---->
 #define constInt 21
 #define constHex 22
@@ -32,7 +33,9 @@ typedef char TypeMod[MAX_TEXT];
 #define typeLeftBrace 34
 #define typeRightBrace 35
 #define typeLeftSqBracket 36
-#define typeRightSqBracket 36
+#define typeRightSqBracket 37
+#define typeAccessOperator 38
+
 // <----Знаки операций---->
 #define typeEval 40
 #define typeUnEq 41
