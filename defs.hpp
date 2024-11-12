@@ -12,6 +12,8 @@
 typedef char TypeLex[MAX_LEX];
 typedef char TypeMod[MAX_TEXT];
 
+#define MAX_KEYW 9	// число ключевых слов
+
 // Определение типов лексем
 // <----Ключевые слова---->
 #define typeId 1

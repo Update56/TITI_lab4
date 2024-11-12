@@ -2,7 +2,7 @@
 0
 000009
 //0xs
-const Const
+const! Const
 //r.w.r.g class Class ,  ( {} )
 while
 0xdasgdhjadg
