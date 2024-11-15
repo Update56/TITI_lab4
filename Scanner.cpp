@@ -1,28 +1,70 @@
-﻿#include "defs.hpp"
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include "defs.hpp"
 #include "Scanner.hpp"
 
-void TScanner::PutPtr(int i) {
+Scanner::Scanner(FILE* in)
+{
+    GetData(in);
+    putPointer(0);
+    pos = 0;
+    line = 1;
+}
+
+int Scanner::PPP()
+{
+    pos = pos + 1;
+    return pos;
+}
+
+void Scanner::PrintError(string errorMessage, string lexeme)
+{
+    if (lexeme[0] == 0)
+        cout << "Ошибка: " << errorMessage << endl;
+    else
+        cout << "Строка " << line << ", Позиция " << pos << " Ошибка: " << errorMessage << ". Неверный символ: " << lexeme << endl;
+    exit(0);
+}
+
+void Scanner::GetData(FILE* in)
+{
+    if (in == NULL)
+    {
+        PrintError("Отсутствует входной файл", "");
+        exit(1);
+    }
+    int i = 0;
+    char tmp;
+    while (!feof(in))
+    {
+        fscanf(in, "%c", &tmp);
+        if (!feof(in))
+            t[i++] = tmp;
+        if (i > MAX_TEXT)
+        {
+            PrintError("Слишком большой размер исходного модуля", "");
+            break;
+        }
+    }
+    t[i] = '\0';
+    fclose(in);
+}
+void Scanner::GetPtr(int i) {
     ptr = i;//восстановить указатель
 }
 
-int TScanner::GetPtr(void) {
+int Scanner::SetPtr(void) {
     return ptr;// запомнить указатель
 }
 
-void TScanner::PrintError(int i) {
-    printf("Error: invalid character '%c' (%d) at the position %d\n", i, i, ptr);
-    exit(EXIT_FAILURE); // Завершение программы при ошибке
-}
-
-
-int TScanner::Scanner(TypeLex l) {
+int Scanner::Scanning(TypeLex l) {
     int curr_len = 0; // текущая длина лексемы
     char curr_char; // текущий символ
 
     while ((curr_char = t[ptr]) == ' ' || curr_char == '\n' || curr_char == '\t') {
+        if (curr_char == '\n')
+            line++;
         ptr++; // пропуск незначащих элементов
     }
-
     if (curr_char == '\0') {
         l[0] = '\0';
         return typeEnd;
@@ -34,7 +76,7 @@ int TScanner::Scanner(TypeLex l) {
         while (curr_char != '\n' && curr_char != '\0') {
             curr_char = t[++ptr];
         }
-        return Scanner(l);
+        return Scanning(l);
     }
 
     // Идентификаторы и ключевые слова
@@ -62,6 +104,7 @@ int TScanner::Scanner(TypeLex l) {
         else if (strcmp(l, "while") == 0) return typeWhile;
         else if (strcmp(l, "class") == 0) return typeClass;
         else if (strcmp(l, "const") == 0) return typeConst;
+        else if (strcmp(l, "void") == 0) return typeVoid;
         else return typeId;
     }
     //обратбока целых
@@ -115,7 +158,7 @@ int TScanner::Scanner(TypeLex l) {
             }
             else
             {
-                PrintError(curr_char);
+                PrintError("AAA", "curr_char");
                 return typeError;
                 exit(0);
             }
@@ -219,7 +262,7 @@ int TScanner::Scanner(TypeLex l) {
             return typeUnEq;
         }
         else {
-            PrintError(curr_char);
+            PrintError("AAA", "curr_char");
             return typeError;
         }
     case '+':
@@ -242,29 +285,9 @@ int TScanner::Scanner(TypeLex l) {
         l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
         return typeMod;
     default:
-        PrintError(curr_char);
+        PrintError("AAA", "curr_char");
         return typeError;
         exit(0);
     }
 }
 
-
-// Считывание файла
-void TScanner::GetData() {
-    errno_t err = fopen_s(&in, "input.txt", "r");
-    if (err != 0) {
-        perror("The file could not be opened");
-        exit(EXIT_FAILURE);
-    }
-
-    int i = 0;
-    while (!feof(in) && i < MAX_TEXT - 1) {
-        char ch;
-        if (fscanf_s(in, "%c", &ch, 1) != 1) {
-            break;
-        }
-        t[i++] = ch;
-    }
-    t[i] = '\0';
-    fclose(in);
-}

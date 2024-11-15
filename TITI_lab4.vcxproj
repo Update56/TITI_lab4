@@ -127,11 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Diagram.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="TITI_lab4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.hpp" />
+    <ClInclude Include="Diagram.hpp" />
     <ClInclude Include="Scanner.hpp" />
   </ItemGroup>
   <ItemGroup>

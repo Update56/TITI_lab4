@@ -2,19 +2,53 @@
 #ifndef SCANNER_HPP
 #define SCANNER_HPP
 #include "defs.hpp"
+#include <iostream>
+#include <string.h>
+using namespace std;
 
-class TScanner {
+class Scanner {
 private:
     char t[MAX_TEXT]; // исходный текст
     int ptr = 0; // указатель текущей позиции в исходном тексте
     FILE* in;
+    TypeMod code;
+    int pointer;
+    int pos;
+    int line;
+    void GetData(FILE* in);
 public:
-    TScanner() : ptr(0) {}
-    void PutPtr(int i); //восстановить указатель
-    int GetPtr(void); //запомнить указатель
-    void PrintError(int i); //выдать сообщение об ошибке
-    int Scanner(TypeLex l); //программа сканера
-    void GetData(void); //ввод файла с исходным модулем
+
+    Scanner(FILE* in);
+    int PPP();
+    void GetPtr(int i); //восстановить указатель
+    int SetPtr(void); //запомнить указатель
+    void PrintError(string errorMessage, string lexeme); //выдать сообщение об ошибке
+    int Scanning(TypeLex l); //программа сканера
+	
+	int getPointer()
+	{
+		return pointer;
+	}
+	int getLine()
+	{
+		return line;
+	}
+	int getPos()
+	{
+		return pos;
+	}
+	void putPointer(int i)
+	{
+		pointer = i;
+	}
+	void setLine(int _line)
+	{
+		line = _line;
+	}
+	void setPos(int _pos)
+	{
+		pos = _pos;
+	}
 };
 
 #endif 

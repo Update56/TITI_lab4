@@ -24,6 +24,7 @@ typedef char TypeMod[MAX_TEXT];
 #define typeWhile 14
 #define typeClass 15
 #define typeConst 16
+#define typeVoid 17
 // <----Константы---->
 #define constInt 21
 #define constHex 22

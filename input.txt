@@ -1,10 +1,4 @@
-<< >> <= >= => =< !=
-0
-000009
-//0xs
-const! Const
-//r.w.r.g class Class ,  ( {} )
-while
-0xdasgdhjadg
-[]
-
+void main() { 
+const int  = 10;
+const 
+}
