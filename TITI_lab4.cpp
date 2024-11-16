@@ -6,6 +6,12 @@
 #include "iostream"
 
 int main(int argc, char* argv[]) {
+
+    class game {
+        void help();
+        double wheel = 10;
+    };
+
     setlocale(LC_ALL, "Rus");
     int type;
     TypeLex l;

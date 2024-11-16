@@ -118,7 +118,7 @@ int Scanner::Scanning(TypeLex l) {
                 exit(EXIT_FAILURE);
             }
             curr_char = t[++ptr];
-        } while ((curr_char >= '1') && (curr_char <= '9'));
+        } while ((curr_char >= '0') && (curr_char <= '9'));
         l[curr_len] = '\0';
         return constInt;
     }

@@ -16,7 +16,7 @@ void Diagram::Type() {
         return;
     }
     else {
-        sc->PrintError("ожидался тип данных(double, char) или индентификатор", l);
+        sc->PrintError("ожидался тип данных(double, char) или индентификатор (type)", l);
     }
 }
 
@@ -30,7 +30,7 @@ void Diagram::Program() {
             return;
         }
         else {
-            sc->PrintError("Ожидался символ main", l);
+            sc->PrintError("Ожидался символ main (prog)", l);
         }
     }
     else if ((t == typeDouble) || (t == typeChar)  || (t == typeId)) {
@@ -43,14 +43,14 @@ void Diagram::Program() {
         NamedConst();
     }
     else {
-        sc->PrintError("ожидался тип данных (double, char), индификатор, класс, именованная константа", l);
+        sc->PrintError("ожидался тип данных (double, char), индификатор, класс, именованная константа (prog)", l);
     }
 }
 void Diagram::Data() {
     do {
         SetToken(); sc->PPP();
         if (t != typeId)
-            sc->PrintError("ожидался идентификатор", l);
+            sc->PrintError("ожидался идентификатор (data)", l);
         SetToken(); sc->PPP();
         if (t == typeEval) {
             Expression();
@@ -59,18 +59,17 @@ void Diagram::Data() {
             SetToken(); sc->PPP();
         }
     } while (t == typeComma);
-
     if (t != typeSemicolon) 
-        sc->PrintError("ожидался символ ;", l);
+        sc->PrintError("ожидался символ ; (data)", l);
 }
 
 void Diagram::Func() {
     SetToken(); sc->PPP();
     if (t != typeLeftBracket)
-        sc->PrintError("ожидался символ (", l);
+        sc->PrintError("ожидался символ ( (func)", l);
     SetToken(); sc->PPP();
     if (t != typeRightBracket)
-        sc->PrintError("ожидался символ )", l);
+        sc->PrintError("ожидался символ ) (func)", l);
     SetToken(); sc->PPP();
 
     if (t == typeLeftBrace)
@@ -80,41 +79,37 @@ void Diagram::Func() {
 void Diagram::NamedConst()
 {
     SetToken(); sc->PPP();
-    if (t != typeId) {
-        sc->PrintError("ожидался идентификатор", l);
-    }
-    SetToken(); sc->PPP();
     Type();
+    SetToken(); sc->PPP();
+    if (t != typeId) {
+        sc->PrintError("ожидался идентификатор (NC)", l);
+    }
     SetToken(); sc->PPP();
     if (t == typeEval) {
         Expression();
     }
     else {
-        sc->PrintError("ожидался знак =", l);
+        sc->PrintError("ожидался знак = (NC)", l);
     }
     if (t == constInt || t == constHex) {
         SetToken(); sc->PPP();
         return;
     }
-    else
-    {
-        sc->PrintError("ожидаласт константа", l);
-    }
     if (t != typeSemicolon)
-        sc->PrintError("ожидался символ ;", l);
+        sc->PrintError("ожидался символ ; (NC)", l);
 }
 
 void Diagram::Class()
 {
     SetToken(); sc->PPP();
     if (t != typeId) {
-        sc->PrintError("ожидался идентификатор", l);
+        sc->PrintError("ожидался идентификатор (class)", l);
     }
     SetToken(); sc->PPP();
 
     if (t != typeLeftBrace)
     {
-        sc->PrintError("ожидался символ {", l);
+        sc->PrintError("ожидался символ { (class)", l);
     }
     SetToken(); sc->PPP();
     while (t != typeRightBrace)
@@ -125,36 +120,38 @@ void Diagram::Class()
         else if (t == typeVoid){
             Method();
         }
+        else if (t == typeConst) {
+            NamedConst();
+        }
         else
         {
             sc->PrintError("ожидались data или method", l);
+            break;
         }
         SetToken(); sc->PPP();
     }
+    SetToken(); sc->PPP();
     if (t != typeSemicolon)
-        sc->PrintError("ожидался символ ;", l);
+        sc->PrintError("ожидался символ ; (class)", l);
 }
 
 void Diagram::Method()
 {
     SetToken(); sc->PPP();
     if (t != typeId) {
-        sc->PrintError("ожидался идентификатор", l);
+        sc->PrintError("ожидался идентификатор #1(met)", l);
     }
     SetToken(); sc->PPP();
 
     if (t != typeLeftBracket)
     {
-        sc->PrintError("ожидался символ (", l);
+        sc->PrintError("ожидался символ ( (met)", l);
     }
     SetToken(); sc->PPP();
     while (t != typeRightBracket)
     {
         Type();
         SetToken(); sc->PPP();
-        if (t != typeId) {
-            sc->PrintError("ожидался идентификатор", l);
-        }
         if (t == typeComma)
         {
             SetToken(); sc->PPP();
@@ -163,6 +160,9 @@ void Diagram::Method()
     SetToken(); sc->PPP();
     if (t == typeLeftBrace)
         CompOper();
+    SetToken(); sc->PPP();
+    if (t != typeSemicolon)
+        sc->PrintError("ожидался символ ; (met)", l);
 }
 
 void Diagram::CompOper() {
@@ -174,7 +174,7 @@ void Diagram::CompOper() {
         else if (t == typeRightBrace) {
             braceCount--; // Уменьшаем уровень вложенности
             if (braceCount < 0) {
-                sc->PrintError("Лишняя закрывающая фигурная скобка", l);
+                sc->PrintError("Лишняя закрывающая фигурная скобка (CO)", l);
                 return;
             }
         }
@@ -191,10 +191,13 @@ void Diagram::CompOper() {
         if (t == typeConst) {
             NamedConst();
         }
+        if (t == typeClass) {
+            Class();
+        }
     } while ((braceCount > 0) && (t == typeLeftBrace || t == typeRightBrace || t == typeDouble || t == typeChar ||t == typeSemicolon || t == typeId || t == typeDo || t == typeWhile));
 
     if (braceCount > 0) {
-        sc->PrintError("не закрыты фигурные скобки", l);
+        sc->PrintError("не закрыты фигурные скобки (CO)", l);
     }
 }
 
@@ -204,6 +207,7 @@ void Diagram::Operator() {
         return;
     }
     if (t == typeDo) {
+        SetToken(); sc->PPP();
         Operator();
         SetToken(); sc->PPP();
         if (t == typeWhile) {
@@ -217,16 +221,16 @@ void Diagram::Operator() {
                         return;
                     }
                     else
-                        sc->PrintError("ожидался символ ;", l);
+                        sc->PrintError("ожидался символ ; (oper)", l);
                 }
                 else
-                    sc->PrintError("ожидался символ )", l);
+                    sc->PrintError("ожидался символ ) (oper)", l);
             }
             else
-                sc->PrintError("ожидался символ (", l);
+                sc->PrintError("ожидался символ ( (oper)", l);
         }
         else
-            sc->PrintError("ожидался while", l);
+            sc->PrintError("ожидался while (oper)", l);
     }
     
     if (t == typeRightBrace) {
@@ -239,7 +243,7 @@ void Diagram::Operator() {
 
     Assigment();
     if (t != typeSemicolon)
-        sc->PrintError("ожидался символ ;", l);
+        sc->PrintError("ожидался символ ; (oper)", l);
 }
 
 
@@ -250,14 +254,14 @@ void Diagram::Assigment() {
         Expression();
     }
     else {
-        sc->PrintError("ожидался знак =", l);
+        sc->PrintError("ожидался знак = (assig)", l);
     }
 }
 
 void Diagram::Variable() {
 
     if (t != typeId) {
-        sc->PrintError("ожидался идентификатор", l);
+        sc->PrintError("ожидался идентификатор (var)", l);
     }
     if (t == typeAccessOperator)
     {
