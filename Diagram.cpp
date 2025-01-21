@@ -347,6 +347,10 @@ void Diagram::Elementary() {
 	if (t == typeRightBracket) {
 		SetToken(); sc->PPP();
 	}
+	if (t == typeSemicolon)
+	{
+		sc->PrintError("ожидалось продолжение выражения (elem)", l);
+	}
 	Unary();
 }
 
