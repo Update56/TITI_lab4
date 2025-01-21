@@ -13,9 +13,9 @@ private:
     FILE* in;
     TypeMod code;
     int _pos;
-    int line;
     void GetData(FILE* in);
 public:
+    int line;
     Scanner(FILE* in);
     int PPP();
     void GetPtr(int i); //восстановить указатель

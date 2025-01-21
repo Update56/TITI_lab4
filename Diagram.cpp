@@ -253,6 +253,10 @@ void Diagram::Operator() {
 void Diagram::Assigment() {
 
 	Variable();
+	if (t == typeSemicolon)
+	{
+		return;
+	}
 	if (t == typeEval) {
 		Expression();
 	}
@@ -276,9 +280,14 @@ void Diagram::Variable() {
 	{
 		return;
 	}
+	if (t == typeSemicolon)
+	{
+		return;
+	}
 	if (t != typeId) {
 		sc->PrintError("ожидался идентификатор (var)", l);
 	}
+	
 }
 
 void Diagram::Expression() {
