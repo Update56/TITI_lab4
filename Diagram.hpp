@@ -2,6 +2,9 @@
 #define __DIAGRAM
 #include "Scanner.hpp"
 #include "defs.hpp"
+#include "vector"
+#include "array"
+
 
 class Diagram
 {
@@ -10,13 +13,15 @@ private:
 	Scanner* sc;
 	TypeLex l; // “окен
 	int t;     //  од текущего токена
-	int fff = 0;
 	int bracketCount = 0;
 	int previousToken;
+	int previousPtr = 0;
+	vector<array<int, 2> > lexcemes; //массив лексем [0] - код лексемы, [1] - позици€ курсора начала этой лексемы
+	
 public:
 	Diagram(Scanner* s) { sc = s; }
 	~Diagram() {}
-	void SetToken();	//сохран€ем предыдущий токен
+	void SetToken();	//получить токен
 	void GetToken();	//возвращаем предыдущий токен
 	void Program();		//1.программа
 	void Data();		//2.данные
@@ -36,6 +41,5 @@ public:
 	void Elementary();	//16.элементарные выражени
 	void Unary();		//17.унарные операции
 	void CompOper();	//20.cоставной оператор+
-
 };
 #endif

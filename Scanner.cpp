@@ -5,15 +5,13 @@
 Scanner::Scanner(FILE* in)
 {
     GetData(in);
-    putPointer(0);
-    pos = 0;
+    _pos = 0;
     line = 1;
 }
 
 int Scanner::PPP()
 {
-    pos = pos + 1;
-    return pos;
+    return _pos++;
 }
 
 void Scanner::PrintError(string errorMessage, string lexeme)
@@ -21,7 +19,7 @@ void Scanner::PrintError(string errorMessage, string lexeme)
     if (lexeme[0] == 0)
         cout << "Ошибка: " << errorMessage << endl;
     else
-        cout << "Строка " << line << ", Позиция " << pos << " Ошибка: " << errorMessage << ". Неверный символ: " << lexeme << endl;
+        cout << "Строка " << line << ", Позиция " << _pos << " Ошибка: " << errorMessage << ". Неверный символ: " << lexeme << endl;
     exit(0);
 }
 
@@ -52,7 +50,7 @@ void Scanner::GetPtr(int i) {
     ptr = i;//восстановить указатель
 }
 
-int Scanner::SetPtr(void) {
+int Scanner::SetPtr() {
     return ptr;// запомнить указатель
 }
 

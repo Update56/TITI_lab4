@@ -3,12 +3,15 @@
 using namespace std;
 
 void Diagram::SetToken() {
-    previousToken = t; // сохраняем предыдущий токен
-    t = sc->Scanning(l);
+    previousToken = t; //сохраняем в предыдущий токен
+    previousPtr = sc->SetPtr(); //сохраняем в предыдущий курсор 
+    t = sc->Scanning(l); //сканирование токена
+    lexcemes.push_back({t, previousPtr});
 }
 
 void Diagram::GetToken() {
-    t = previousToken; // возвращаем предыдущий токен
+    t = previousToken; //возвращаем предыдущий токен
+    sc->GetPtr(previousPtr); //возвращаем предыдущий указатель
 }
 
 void Diagram::Type() {
