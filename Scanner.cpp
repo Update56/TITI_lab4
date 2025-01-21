@@ -179,7 +179,6 @@ int Scanner::Scanning(TypeLex l) {
         }
         else
         {
-            curr_char = t[++ptr];
             l[curr_len] = '\0';
             return constInt;
         }
