@@ -18,6 +18,7 @@ public:
     int line;
     Scanner(FILE* in);
     int PPP();
+    int PMM();
     void GetPtr(int i); //восстановить указатель
     int SetPtr(void); //запомнить указатель
     void PrintError(string errorMessage, string lexeme); //выдать сообщение об ошибке

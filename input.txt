@@ -1,7 +1,8 @@
 void main() { 
+{
 do{
 a = 3;
 double g;
 } while (1 > 3);
-a = 1 +;
+}
 }

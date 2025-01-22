@@ -170,12 +170,26 @@ void Diagram::Method()
 
 void Diagram::CompOper() {
 	int braceCount = 0; // Для отслеживания уровня вложенности фигурных скобок
+	bool flag = false;
 	do {
+		if (flag){
+			GetToken(); sc->PMM();
+		}
 		if (t == typeLeftBrace) {
 			braceCount++; // Увеличиваем уровень вложенности
 		}
 		else if (t == typeRightBrace) {
+			do
+			{
 			braceCount--; // Уменьшаем уровень вложенности
+			SetToken(); sc->PPP();
+			} while (t == typeRightBrace);//
+			if (t == typeEnd)
+			{
+				break;
+			}
+			GetToken(); sc->PMM();
+			
 			if (braceCount < 0) {
 				sc->PrintError("Лишняя закрывающая фигурная скобка (CO)", l);
 				return;

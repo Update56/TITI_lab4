@@ -14,6 +14,11 @@ int Scanner::PPP()
     return _pos++;
 }
 
+int Scanner::PMM()
+{
+    return _pos--;
+}
+
 void Scanner::PrintError(string errorMessage, string lexeme)
 {
     if (lexeme[0] == 0)
