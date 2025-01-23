@@ -1,8 +1,18 @@
 void main() { 
-{
+class car{
+double wheels = 10;
+void check(double p1, char p2){
 do{
-a = 3;
-double g;
-} while (1 > 3);
-}
+} while(((1 > 3)));
+};
+const double game = 10;
+};
+{{{}{{}}}}
+double var = 2 << 3 + 2 - 0;
+double b = 0;
+class a1 {
+double b;
+};
+b = 6;
+b.v.c = 1;
 }

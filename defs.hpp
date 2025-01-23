@@ -31,10 +31,10 @@ typedef char TypeMod[MAX_TEXT];
 // <----Спец. знаки---->
 #define typeComma 30
 #define typeSemicolon 31
-#define typeLeftBracket 32
-#define typeRightBracket 33
-#define typeLeftBrace 34
-#define typeRightBrace 35
+#define typeLeftBracket 32	// (
+#define typeRightBracket 33 // )
+#define typeLeftBrace 34	// {
+#define typeRightBrace 35	// }
 #define typeLeftSqBracket 36
 #define typeRightSqBracket 37
 #define typeAccessOperator 38

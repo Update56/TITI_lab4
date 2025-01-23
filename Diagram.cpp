@@ -163,42 +163,33 @@ void Diagram::Method()
 	SetToken(); sc->PPP();
 	if (t == typeLeftBrace)
 		CompOper();
-	SetToken(); sc->PPP();
 	if (t != typeSemicolon)
 		sc->PrintError("ожидалс€ символ ; (met)", l);
 }
 
 void Diagram::CompOper() {
 	int braceCount = 0; // ƒл€ отслеживани€ уровн€ вложенности фигурных скобок
-	bool flag = false;
 	do {
-		if (flag){
-			GetToken(); sc->PMM();
-		}
 		if (t == typeLeftBrace) {
 			braceCount++; // ”величиваем уровень вложенности
+			SetToken(); sc->PPP();   // —читываем следующий токенs
 		}
-		else if (t == typeRightBrace) {
+		if (t == typeRightBrace) {
 			do
 			{
 			braceCount--; // ”меньшаем уровень вложенности
 			SetToken(); sc->PPP();
 			} while (t == typeRightBrace);//
-			if (t == typeEnd)
-			{
-				break;
-			}
-			GetToken(); sc->PMM();
-			
 			if (braceCount < 0) {
 				sc->PrintError("Ћишн€€ закрывающа€ фигурна€ скобка (CO)", l);
 				return;
 			}
+			if (t == typeEnd)
+			{
+				break;
+			}
 		}
-		if (t == typeLeftBrace) {
-			SetToken(); sc->PPP();   // —читываем следующий токен
-		}
-		else if ((t == typeDouble) || (t == typeChar)) {
+		if ((t == typeDouble) || (t == typeChar)) {
 			Data();
 			SetToken(); sc->PPP();
 		}
@@ -226,11 +217,15 @@ void Diagram::Operator() {
 	if (t == typeDo) {
 		SetToken(); sc->PPP();
 		Operator();
-		SetToken(); sc->PPP();
 		if (t == typeWhile) {
 			SetToken(); sc->PPP();
 			if (t == typeLeftBracket)
 			{
+				do
+				{
+				elemBracketLvl++;
+				SetToken(); sc->PPP();
+				} while (t == typeLeftBracket);
 				Expression();
 				if (t == typeRightBracket) {
 					SetToken(); sc->PPP();
@@ -314,11 +309,11 @@ void Diagram::Expression() {
 }
 
 void Diagram::Comparison() {
-	Shift();
 	while ((t == typeLessOrEq) || (t == typeLess) || (t == typeMoreOrEq) || (t == typeMore) || (t == typeUnEq)) {
 		SetToken(); sc->PPP();
 		Shift();
 	}
+	Shift();
 }
 
 void Diagram::Shift() {
@@ -356,14 +351,20 @@ void Diagram::Elementary() {
 		return;
 	}
 	if (t == typeLeftBracket) {
+		elemBracketLvl++;
 		Expression();
 	}
 	if (t == typeRightBracket) {
+		elemBracketLvl--;
 		SetToken(); sc->PPP();
 	}
 	if (t == typeSemicolon)
 	{
-		sc->PrintError("ожидалось продолжение выражени€ (elem)", l);
+		if (elemBracketLvl != 0)
+			sc->PrintError("ожидалось продолжение выражени€ (elem)", l);
+		else
+			GetToken(); sc->PMM();
+			return;
 	}
 	Unary();
 }

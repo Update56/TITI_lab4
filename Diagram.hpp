@@ -17,6 +17,7 @@ private:
 	int previousToken;
 	int previousPtr = 0;
 	vector<array<int, 2> > lexcemes; //массив лексем [0] - код лексемы, [1] - позиция курсора начала этой лексемы
+	int elemBracketLvl = 0;
 	
 public:
 	Diagram(Scanner* s) { sc = s; }
