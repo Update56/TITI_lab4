@@ -261,7 +261,7 @@ int Scanner::Scanning(TypeLex l) {
         if (t[ptr + 1] == '=') {
             l[curr_len++] = curr_char; curr_char = t[++ptr];
             l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeUnEq;
+            return typeNotEq;
         }
         else {
             PrintError("AAA", "curr_char");

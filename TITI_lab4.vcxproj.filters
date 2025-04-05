@@ -24,6 +24,9 @@
     <ClCompile Include="Diagram.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Semant.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.hpp">
@@ -33,6 +36,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="Diagram.hpp">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Semant.hpp">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

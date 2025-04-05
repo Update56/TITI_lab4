@@ -309,7 +309,7 @@ void Diagram::Expression() {
 }
 
 void Diagram::Comparison() {
-	while ((t == typeLessOrEq) || (t == typeLess) || (t == typeMoreOrEq) || (t == typeMore) || (t == typeUnEq)) {
+	while ((t == typeLessOrEq) || (t == typeLess) || (t == typeMoreOrEq) || (t == typeMore) || (t == typeNotEq)) {
 		SetToken(); sc->PPP();
 		Shift();
 	}

@@ -129,12 +129,14 @@
   <ItemGroup>
     <ClCompile Include="Diagram.cpp" />
     <ClCompile Include="Scanner.cpp" />
+    <ClCompile Include="Semant.cpp" />
     <ClCompile Include="TITI_lab4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.hpp" />
     <ClInclude Include="Diagram.hpp" />
     <ClInclude Include="Scanner.hpp" />
+    <ClInclude Include="Semant.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />

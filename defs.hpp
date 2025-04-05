@@ -41,14 +41,16 @@ typedef char TypeMod[MAX_TEXT];
 
 // <----Знаки операций---->
 #define typeEval 40
-#define typeUnEq 41
+#define typeNotEq 41
 #define typeEq 42
 #define typeLessOrEq 43
 #define typeLess 44
 #define typeMoreOrEq 45
 #define typeMore 46
+
 #define typeShiftRight 47
 #define typeShiftLeft 48
+
 #define typePlus 49
 #define typeMinus 50
 #define typeMod 51
