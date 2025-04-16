@@ -1,27 +1,20 @@
-#pragma once
-#ifndef SCANNER_HPP
-#define SCANNER_HPP
+#ifndef __SCANNER
+#define __SCANNER
 #include "defs.hpp"
-#include <iostream>
-#include <string.h>
-using namespace std;
-
-class Scanner {
+class TScanner {
 private:
-    char t[MAX_TEXT]; //исходный текст
-    int ptr = 0; //указатель текущей позиции в исходном тексте
-    FILE* in;
-    TypeMod code;
-    int _pos;
-    void GetData(FILE* in);
+	TypeMod t; // исходный текст
+	int ptr; // указатель текущей позиции в исходном тексте
+	int currentLine;	//текущая строка
+	int ptrLine;	//значение указателя в начале текущей строки
 public:
-    int line;
-    Scanner(FILE* in);
-    int PPP();
-    int PMM();
-    void GetPtr(int i); //восстановить указатель
-    int SetPtr(void); //запомнить указатель
-    void PrintError(string errorMessage, string lexeme); //выдать сообщение об ошибке
-    int Scanning(TypeLex l); //программа сканера
+	void GetPtr(int i);
+	int SetPtr(void);
+	void PrintError(const char*, const char*);
+	void PrintError();
+	int Scanner(TypeLex l);
+	void GetData(const char*);
+	TScanner(const char*);
+	~TScanner() {}
 };
-#endif 
+#endif

@@ -1,295 +1,251 @@
-п»ї#define _CRT_SECURE_NO_WARNINGS
-#include "defs.hpp"
+#define _CRT_SECURE_NO_WARNINGS
 #include "Scanner.hpp"
+#include <string.h>
+#include "defs.hpp"
 
-Scanner::Scanner(FILE* in)
-{
-    GetData(in);
-    _pos = 0;
-    line = 1;
+/* Конструктор */
+TScanner::TScanner(const char* FileName) {
+	GetData(FileName);
+	GetPtr(0);
+	currentLine = 1;
+	ptrLine = ptr;
 }
 
-int Scanner::PPP()
-{
-    return _pos++;
+/* Ключевые слова */
+TypeLex Keyword[MAX_KEYW] = { "int",   "void",   "double",   "main",   "true",   "false",   "bool",   "char",   "do",   "while",   "class", "const"};
+int IndexKeyword[MAX_KEYW] = { typeInt, typeVoid, typeDouble, typeMain, typeTrue, typeFalse, typeBool, typeChar, typeDo, typeWhile, typeClass, typeConst };
+
+/* Восстановление и запоминание указателей */
+void TScanner::GetPtr(int i) { 
+	ptr = i; 
 }
 
-int Scanner::PMM()
-{
-    return _pos--;
+int TScanner::SetPtr(void) {
+	return ptr; 
 }
 
-void Scanner::PrintError(string errorMessage, string lexeme)
-{
-    if (lexeme[0] == 0)
-        cout << "РћС€РёР±РєР°: " << errorMessage << endl;
-    else
-        cout << "РЎС‚СЂРѕРєР° " << line << ", РџРѕР·РёС†РёСЏ " << _pos << " РћС€РёР±РєР°: " << errorMessage << ". РќРµРІРµСЂРЅС‹Р№ СЃРёРјРІРѕР»: " << lexeme << endl;
-    exit(0);
+/* Вывод ошибок */
+void TScanner::PrintError(const char* err, const char* lex) {
+	if (lex[0] != '\0')
+		printf("Строка %d позиция %d: %s - получен: %s\n", currentLine, ptr - ptrLine, err, lex);
+	else
+		printf("Строка %d позиция %d: %s\n", currentLine, ptr - ptrLine, err);
+	exit(0);
 }
 
-void Scanner::GetData(FILE* in)
-{
-    if (in == NULL)
-    {
-        PrintError("РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РІС…РѕРґРЅРѕР№ С„Р°Р№Р»", "");
-        exit(1);
-    }
-    int i = 0;
-    char tmp;
-    while (!feof(in))
-    {
-        fscanf(in, "%c", &tmp);
-        if (!feof(in))
-            t[i++] = tmp;
-        if (i > MAX_TEXT)
-        {
-            PrintError("РЎР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№ СЂР°Р·РјРµСЂ РёСЃС…РѕРґРЅРѕРіРѕ РјРѕРґСѓР»СЏ", "");
-            break;
-        }
-    }
-    t[i] = '\0';
-    fclose(in);
-}
-void Scanner::GetPtr(int i) {
-    ptr = i;//РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ
+void TScanner::PrintError() {
+	printf("строка %d позиция %d\n", currentLine, ptr - ptrLine);
 }
 
-int Scanner::SetPtr() {
-    return ptr;// Р·Р°РїРѕРјРЅРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ
+/* Основная функция сканирования */
+int TScanner::Scanner(TypeLex l) {
+	int i = 0; // текущая длина лексемы
+	for (i = 0; i < MAX_LEX; i++) l[i] = 0; // очистка лексемы
+	i = 0;
+
+start:
+	// Пропустим пробелы, табуляции и переходы
+	while ((t[ptr] == ' ') || (t[ptr] == '\n') || (t[ptr] == '\t')) {
+		if (t[ptr] == '\n' && ptrLine != ptr + 1) {
+			ptrLine = ptr + 1;
+			currentLine++;
+		}
+		ptr++;
+	}
+
+	// Однострочный комментарий
+	if ((t[ptr] == '/') && (t[ptr + 1] == '/')) {
+		ptr = ptr + 2;
+		while ((t[ptr] != '\n') && (t[ptr] != '\0')) ptr++;
+		goto start;
+	}
+	// Многострочный комментарий
+	else if ((t[ptr] == '/') && (t[ptr + 1] == '*')) {
+		ptr = ptr + 2;
+		while (!((t[ptr] == '*') && (t[ptr + 1] == '/')) && (t[ptr] != '\0')) {
+			if (t[ptr] == '\n' && ptrLine != ptr) {
+				ptrLine = ptr;
+				currentLine++;
+			}
+			ptr++;
+		}
+		if ((t[ptr] != '*') && (t[ptr + 1] != '/')) {
+			PrintError("Незакрытый многострочный комментарий", "");
+			return typeError;
+		}
+		ptr = ptr + 2;
+		goto start;
+	}
+	else if (t[ptr] == '\0') {
+		l[0] = '#';
+		return typeEnd;
+	}
+
+	// Числа: поддержка 0x
+	else if ((t[ptr] >= '0' && t[ptr] <= '9')) {
+		bool hexDetect = false;
+		while ((t[ptr] >= '0' && t[ptr] <= '9') || (t[ptr] >= 'a' && t[ptr] <= 'f') || t[ptr] == 'x' || t[ptr] == '.') {
+			if (t[ptr] == '0') {
+				if (t[ptr + 1] == 'x'){
+					hexDetect = true;
+					l[i++] = t[ptr++];
+			}
+			}
+			else if (t[ptr] == 'x' && hexDetect == true)
+				PrintError("Неверный формат hex", "");
+			l[i++] = t[ptr++];
+		}
+		return constInt;
+	}
+
+	// Идентификаторы или ключевые слова
+	else if ((t[ptr] >= 'a' && t[ptr] <= 'z') || (t[ptr] >= 'A' && t[ptr] <= 'Z') || t[ptr] == '_') {
+		l[i++] = t[ptr++];
+		while ((t[ptr] >= 'a' && t[ptr] <= 'z') || (t[ptr] >= 'A' && t[ptr] <= 'Z') || (t[ptr] >= '0' && t[ptr] <= '9') || t[ptr] == '_') {
+			if (i < MAX_LEX - 1)
+				l[i++] = t[ptr++];
+			else
+				ptr++;
+		}
+		for (int j = 0; j < MAX_KEYW; j++) {
+			if (strcmp(l, Keyword[j]) == 0) {
+				return IndexKeyword[j];
+			}
+		}
+		return typeId;
+	}
+
+	//специальные знаки
+	else if (t[ptr] == '.')
+	{
+		l[i++] = t[ptr++]; return typeAccessOperator;
+	}
+	else if (t[ptr] == ',')
+	{
+		l[i++] = t[ptr++]; return typeComma;
+	}
+	else if (t[ptr] == ';')
+	{
+		l[i++] = t[ptr++]; return typeSemicolon;
+	}
+	else if (t[ptr] == '(')
+	{
+		l[i++] = t[ptr++]; return typeLeftBracket;
+	}
+	else if (t[ptr] == ')')
+	{
+		l[i++] = t[ptr++]; return typeRightBracket;
+	}
+	else if (t[ptr] == '{')
+	{
+		l[i++] = t[ptr++]; return typeLeftBrace;
+	}
+	else if (t[ptr] == '}')
+	{
+		l[i++] = t[ptr++]; return typeRightBrace;
+	}
+	//знаки операций
+	else if (t[ptr] == '*')
+	{
+		l[i++] = t[ptr++]; return typeMul;
+	}
+	else if (t[ptr] == '/')
+	{
+		l[i++] = t[ptr++]; return typeDiv;
+	}
+	else if (t[ptr] == '%')
+	{
+		l[i++] = t[ptr++]; return typeMod;
+	}
+	else if (t[ptr] == '+')
+	{
+		l[i++] = t[ptr++]; return typePlus;
+	}
+	else if (t[ptr] == '-')
+	{
+		l[i++] = t[ptr++]; return typeMinus;
+	}
+	else if (t[ptr] == '<')
+	{
+		l[i++] = t[ptr++];
+		if (t[ptr] == '=')
+		{
+			l[i++] = t[ptr++];
+			return typeLessOrEq;
+		}
+		if (t[ptr] == '<')
+		{
+			l[i++] = t[ptr++];
+			return typeShiftLeft;
+		}
+		return typeLess;
+	}
+	else if (t[ptr] == '>')
+	{
+		l[i++] = t[ptr++];
+		if (t[ptr] == '=') {
+			l[i++] = t[ptr++];
+			return typeMoreOrEq;
+		}
+		if (t[ptr] == '>')
+		{
+			l[i++] = t[ptr++];
+			return typeShiftRight;
+		}
+		return typeMore;
+	}
+	else if (t[ptr] == '=')
+	{
+		l[i++] = t[ptr++];
+		if (t[ptr] == '=') {
+			l[i++] = t[ptr++];
+			return typeEq;
+		}
+		else {
+			return typeEval;
+		}
+	}
+	else if (t[ptr] == '!')
+	{
+		l[i++] = t[ptr++];
+		if (t[ptr] == '=') {
+			l[i++] = t[ptr++];
+			return typeNotEq;
+		}
+		else {
+			PrintError("Неверный символ", l);
+			return typeError;
+		}
+	}
+	else {
+		l[i] = t[ptr];
+		PrintError("Неверный символ", l); // ошибка
+		return typeError;
+	}
+	//десятичная константа
+	while ((t[ptr] <= '9') && (t[ptr] >= '0'))
+		if (i < MAX_LEX - 1) l[i++] = t[ptr++];
+		else ptr++;
+	return constInt;
 }
-
-int Scanner::Scanning(TypeLex l) {
-    int curr_len = 0; // С‚РµРєСѓС‰Р°СЏ РґР»РёРЅР° Р»РµРєСЃРµРјС‹
-    char curr_char; // С‚РµРєСѓС‰РёР№ СЃРёРјРІРѕР»
-
-    while ((curr_char = t[ptr]) == ' ' || curr_char == '\n' || curr_char == '\t') {
-        if (curr_char == '\n')
-            line++;
-        ptr++; // РїСЂРѕРїСѓСЃРє РЅРµР·РЅР°С‡Р°С‰РёС… СЌР»РµРјРµРЅС‚РѕРІ
-    }
-    if (curr_char == '\0') {
-        l[0] = '\0';
-        return typeEnd;
-    }
-
-    // РћР±СЂР°Р±РѕС‚РєР° РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
-    if (curr_char == '/' && t[ptr + 1] == '/') {
-        // РџСЂРѕРїСѓСЃРєР°РµРј РІСЃСЋ СЃС‚СЂРѕРєСѓ
-        while (curr_char != '\n' && curr_char != '\0') {
-            curr_char = t[++ptr];
-        }
-        return Scanning(l);
-    }
-
-    // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ Рё РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
-    if ((curr_char >= 'a' && curr_char <= 'z') || (curr_char >= 'A' && curr_char <= 'Z') || curr_char == '_') {
-        do {
-            if (curr_len < MAX_LEX - 1) {  // РР·РјРµСЂРµРЅРёРµ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ
-                l[curr_len++] = curr_char;
-            }
-            else
-            {
-                printf("Error: line exceeds maximum allowed length of characters.\n");
-                exit(EXIT_FAILURE);
-            }
-            curr_char = t[++ptr];
-
-        } while ((curr_char >= 'a' && curr_char <= 'z') || (curr_char >= 'A' && curr_char <= 'Z')
-            || (curr_char >= '0' && curr_char <= '9') || curr_char == '_');
-        l[curr_len] = '\0';
-
-        // РџСЂРѕРІРµСЂРєР° РЅР° РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
-        if (strcmp(l, "double") == 0) return typeDouble;
-        else if (strcmp(l, "char") == 0) return typeChar;
-        else if (strcmp(l, "main") == 0) return typeMain;
-        else if (strcmp(l, "do") == 0) return typeDo;
-        else if (strcmp(l, "while") == 0) return typeWhile;
-        else if (strcmp(l, "class") == 0) return typeClass;
-        else if (strcmp(l, "const") == 0) return typeConst;
-        else if (strcmp(l, "void") == 0) return typeVoid;
-        else return typeId;
-    }
-    //РѕР±СЂР°С‚Р±РѕРєР° С†РµР»С‹С…
-    if (curr_char >= '1' && curr_char <= '9') {
-        do {
-            if (curr_len < MAX_LEX - 1) {  // РР·РјРµСЂРµРЅРёРµ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ
-                l[curr_len++] = curr_char;
-            }
-            else {
-                printf("Error: number exceeds maximum allowed length of characters.\n");
-                exit(EXIT_FAILURE);
-            }
-            curr_char = t[++ptr];
-        } while ((curr_char >= '0') && (curr_char <= '9'));
-        l[curr_len] = '\0';
-        return constInt;
-    }
-    // РћР±СЂР°Р±РѕС‚РєР° С†РµР»С‹С… Рё 16 СЃ/СЃ С‡РёСЃРµР»(СЃ РЅСѓР»СЏ)
-    if (curr_char == '0') {
-        if (curr_len < MAX_LEX - 1) {  // РР·РјРµСЂРµРЅРёРµ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ
-            l[curr_len++] = curr_char;
-        }
-        else {
-            printf("Error: number exceeds maximum allowed length of characters.\n");
-            exit(EXIT_FAILURE);
-        }
-        curr_char = t[++ptr];
-        //РѕР±СЂР°Р±РѕС‚РєР° 16 СЃ/СЃ (СЃ 'x')
-        if (curr_char == 'x'){
-            if (curr_len < MAX_LEX - 1) {  // РР·РјРµСЂРµРЅРёРµ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ
-                l[curr_len++] = curr_char;
-            }
-            else {
-                printf("Error: number exceeds maximum allowed length of characters.\n");
-                exit(EXIT_FAILURE);
-            }
-            curr_char = t[++ptr];
-            if((curr_char >= '0' && curr_char <= '9') || (curr_char >= 'a' && curr_char <= 'f')){
-                do {
-                    if (curr_len < MAX_LEX - 1) {  // РР·РјРµСЂРµРЅРёРµ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ
-                        l[curr_len++] = curr_char;
-                    }
-                    else {
-                        printf("Error: number exceeds maximum allowed length of characters.\n");
-                        exit(EXIT_FAILURE);
-                    }
-                    curr_char = t[++ptr];
-                } while ((curr_char >= '0' && curr_char <= '9') || (curr_char >= 'a' && curr_char <= 'f'));
-                l[curr_len] = '\0';
-                return constHex;
-            }
-            else
-            {
-                PrintError("AAA", "curr_char");
-                return typeError;
-                exit(0);
-            }
-        }
-        //РѕР±СЂР°Р±РѕС‚РєР° 
-        else if (curr_char >= '0' && curr_char <= '9')
-        {
-            do{
-                if (curr_len < MAX_LEX - 1) {  // РР·РјРµСЂРµРЅРёРµ РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїРµСЂРµРїРѕР»РЅРµРЅРёСЏ
-                    l[curr_len++] = curr_char;
-                }
-                else {
-                    printf("Error: number exceeds maximum allowed length of characters.\n");
-                    exit(EXIT_FAILURE);
-                }
-                curr_char = t[++ptr];
-            } while (curr_char >= '0' && curr_char <= '9');
-            l[curr_len] = '\0';
-            return constInt;
-        }
-        else
-        {
-            l[curr_len] = '\0';
-            return constInt;
-        }
-    }
-    // РћРїРµСЂР°С‚РѕСЂС‹ Рё СЃРїРµС†РёР°Р»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹
-    switch (curr_char) {
-    case ',':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeComma;
-    case ';':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeSemicolon;
-    case '(':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeLeftBracket;
-    case ')':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeRightBracket;
-    case '{':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeLeftBrace;
-    case '}':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeRightBrace;
-    case '[':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeLeftSqBracket;
-    case ']':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeRightSqBracket;
-    case '.':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeAccessOperator;
-    case '=':
-        if (t[ptr + 1] == '=') {
-            l[curr_len++] = curr_char; curr_char = t[++ptr];
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeEq;
-        }
-        else {
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeEval;
-        }
-    case '>':
-        if (t[ptr + 1] == '=') {
-            l[curr_len++] = curr_char; curr_char = t[++ptr];
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeMoreOrEq;
-        }
-        else if (t[ptr + 1] == '>') {
-            l[curr_len++] = curr_char; curr_char = t[++ptr];
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeShiftRight;
-        }
-        else {
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeMore;
-        }
-    case '<':
-        if (t[ptr + 1] == '=') {
-            l[curr_len++] = curr_char; curr_char = t[++ptr];
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeLessOrEq;
-        }
-        else if (t[ptr + 1] == '<') {
-            l[curr_len++] = curr_char; curr_char = t[++ptr];
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeShiftLeft;
-        }
-        else {
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeLess;
-        }
-    case '!':
-        if (t[ptr + 1] == '=') {
-            l[curr_len++] = curr_char; curr_char = t[++ptr];
-            l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-            return typeNotEq;
-        }
-        else {
-            PrintError("AAA", "curr_char");
-            return typeError;
-        }
-    case '+':
-        l[curr_len++] = curr_char;
-        l[curr_len] = '\0';
-        ptr++;
-        return typePlus;
-    case '-':
-        l[curr_len++] = curr_char;
-        l[curr_len] = '\0';
-        ptr++;
-        return typeMinus;
-    case '*':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeMul;
-    case '/':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeDiv;
-    case '%':
-        l[curr_len++] = curr_char; l[curr_len] = '\0'; ptr++;
-        return typeMod;
-    default:
-        PrintError("AAA", "curr_char");
-        return typeError;
-        exit(0);
-    }
+/* Чтение данных */
+void TScanner::GetData(const char* FileName) {
+	char aa;
+	FILE* in = fopen(FileName, "r");
+	if (in == NULL) {
+		PrintError("Отсутствует входной файл", "");
+		exit(1);
+	}
+	int i = 0;
+	while (!feof(in)) {
+		fscanf(in, "%c", &aa);
+		if (!feof(in)) t[i++] = aa;
+		if (i >= MAX_TEXT - 1) {
+			PrintError("Слишком большой размер исходного модуля", "");
+			break;
+		}
+	}
+	t[i] = '\0'; // знак конца текста
+	fclose(in);
 }
 

@@ -1,18 +1,16 @@
-#pragma once
-#ifndef DEFS_HPP         
-#define DEFS_HPP          
+#ifndef __DEFS
+#define __DEFS
 
-#include <cstdio>         
-#include <cstdlib>       
-#include <cstring>       
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define MAX_TEXT 10000    // максимальная длина текста
-#define MAX_LEX 100    // максимальная длина лексемы
+#define MAX_TEXT 500 // максимальная длина текста
+#define MAX_LEX 50 // максимальная длина лексемы
+#define MAX_KEYW 13 // число ключевых слов
 
 typedef char TypeLex[MAX_LEX];
 typedef char TypeMod[MAX_TEXT];
-
-#define MAX_KEYW 9	// число ключевых слов
 
 // Определение типов лексем
 // <----Ключевые слова---->
@@ -23,11 +21,17 @@ typedef char TypeMod[MAX_TEXT];
 #define typeDo 13
 #define typeWhile 14
 #define typeClass 15
-#define typeConst 16
+#define typeConst 16 //---!
 #define typeVoid 17
+#define typeInt 18
+#define typeBool 19
 // <----Константы---->
-#define constInt 21
-#define constHex 22
+#define constInt 20
+#define constHex 21
+#define constDouble 22
+// <----T/F---->
+#define typeTrue 23
+#define typeFalse 24
 // <----Спец. знаки---->
 #define typeComma 30
 #define typeSemicolon 31
@@ -35,28 +39,24 @@ typedef char TypeMod[MAX_TEXT];
 #define typeRightBracket 33 // )
 #define typeLeftBrace 34	// {
 #define typeRightBrace 35	// }
-#define typeLeftSqBracket 36
-#define typeRightSqBracket 37
-#define typeAccessOperator 38
-
-// <----Знаки операций---->
-#define typeEval 40
-#define typeNotEq 41
-#define typeEq 42
-#define typeLessOrEq 43
-#define typeLess 44
-#define typeMoreOrEq 45
-#define typeMore 46
-
-#define typeShiftRight 47
-#define typeShiftLeft 48
-
-#define typePlus 49
-#define typeMinus 50
-#define typeMod 51
-#define typeDiv 52
-#define typeMul 53
+#define typeAccessOperator 36
+// <----Знаки сравнения---->
+#define typeNotEq 40
+#define typeEq 41
+#define typeLessOrEq 42
+#define typeLess 43
+#define typeMoreOrEq 44
+#define typeMore 45
+// <----Знаки действий---->
+#define typeEval 50
+#define typePlus 51
+#define typeMinus 52
+#define typeMod 53
+#define typeDiv 54
+#define typeMul 55
+#define typeShiftLeft 56
+#define typeShiftRight 57
 // <----Дополнительные---->
 #define typeEnd 100
 #define typeError 200
-#endif 
+#endif

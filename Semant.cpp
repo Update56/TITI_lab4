@@ -1,27 +1,18 @@
-
 #include "Semant.hpp"
 #define max(a,b) a<b? b : a
 Tree* Tree::Cur = nullptr;
 Tree::Tree(Tree* l, Tree* r, Tree* u, Node* Data)
 {
-	n = new Node();
+	info = new Node();
 	Up = u; Left = l; Right = r; // установили ссылки
-	memcpy(n, Data, sizeof(Node)); // установили данные
+	memcpy(info, Data, sizeof(Node)); // установили данные
 }
 
 Tree::Tree()
 {
-	n = new Node();
-	memcpy(n->id, &"", 2); n->TypeObject = ObjEmpty; n->DataType = TypeEmpty; n->Data = NULL;
+	info = new Node();
+	memcpy(info->id, &"", 2); info->TypeObj = ObjEmpty; info->DataType = DataTypeEmpty; info->Data = NULL;
 	Up = Cur; Left = NULL; Right = NULL;
-}
-
-Tree::~Tree()
-{
-	if (Left != NULL) delete Left;
-	if (Right != NULL) delete Right;
-	if (n != NULL)   delete n;
-
 }
 
 void Tree::SetLeft(Node* Data)
@@ -36,25 +27,36 @@ void Tree::SetRight(Node* Data)
 	Right = a;
 }
 
+void Tree::SetRightTree(Tree* vert)
+{
+	this->Right = vert;
+}
+
+Tree* Tree::GetRight(void)
+{
+	return this->Right;
+}
+
+Tree* Tree::GetLeft(void)
+{
+	return this->Left;
+}
+
 Tree* Tree::FindUp(Tree* From, TypeLex id)
 {
 	Tree* i = From; // текущая вершина поиска
 	while ((i != NULL) &&
-		(memcmp(id, i->n->id, max(strlen(i->n->id), strlen(id))) != 0)) {
+		(memcmp(id, i->info->id, max(strlen(i->info->id), strlen(id))) != 0)) {
 		i = i->Up; // поднимаемся наверх по связям
 	}
 	return i;
-
 }
 
 Tree* Tree::FindUpOneLevel(Tree* From, TypeLex id)
 {
 	Tree* i = From; // текущая вершина поиска
-	while ((i != NULL) && (i->Up != NULL) &&
-		(i->Up->Right != i)
-		)
-	{
-		if (memcmp(id, i->n->id, max(strlen(i->n->id), strlen(id))) == 0)
+	while ((i != NULL) && (i->Up != NULL) && (i->Up->Right != i)){
+		if (memcmp(id, i->info->id, max(strlen(i->info->id), strlen(id))) == 0)
 			return i; // нaшли совпадающий идентификатор
 		i = i->Up; // поднимаемся наверх по связям
 	}
@@ -66,30 +68,45 @@ Tree* Tree::FindUp(TypeLex id)
 	return FindUp(this, id);
 }
 
-int Tree::Print(int maxI)	//вывод дерева с нумерацией пустых вершин
+Tree* Tree::FindDownOneLevel(Tree* From, TypeLex id)
 {
-	if (n->TypeObject != ObjEmpty) printf("Вершина с данными %s -->", n->id);
-	else printf("Вершина с данными пустая вершина  -->");
+	Tree* i = From; // текущая вершина поиска
+	while (i != NULL) {
+		if (memcmp(id, i->info->id, max(strlen(i->info->id), strlen(id))) == 0)
+			return i; // нaшли совпадающий идентификатор
+		i = i->Left; // опускаемся вниз левым по связям
+	}
+	return NULL;
+}
+
+int Tree::Print(int maxI, const char* id)	//вывод дерева с нумерацией пустых вершин
+{
+	if (info->TypeObj != ObjEmpty) 
+		printf("Вершина с данными \"%s\" -->", info->id);
+	else 
+		printf("Вершина с данными пустая вершина (%s) -->", id);
 
 	if (Left != NULL) {
-		if (Left->n->TypeObject != ObjEmpty) printf(" слева данные %s", Left->n->id);
+		if (Left->info->TypeObj != ObjEmpty)
+			printf(" слева данные \"%s\"", Left->info->id);
 		else {
 			printf(" слева пустая вершина ");
-
 			maxI++;
 		}
 	}
-	if (Right != NULL) {
-		if (Right->n->TypeObject != ObjEmpty) printf(" справа данные %s", Right->n->id);
+	if (Right != NULL && info->TypeObj != ObjClass) {
+		if (Right->info->TypeObj != ObjEmpty) 
+			printf(" справа данные \"%s\"", Right->info->id);
 		else {
 			printf(" справа пустая вершина ");
-
 			maxI++;
 		}
 	}
 	printf("\n");
-	if (Left != NULL) maxI = Left->Print(maxI);
-	if (Right != NULL) maxI = Right->Print(maxI);
+	if (Left != NULL) 
+		maxI = Left->Print(maxI, info->id);
+	if (Right != NULL && info->TypeObj != ObjClass) 
+		maxI = Right->Print(maxI, info->id);
 	return maxI;
 }
 
@@ -103,28 +120,57 @@ Tree* Tree::GetCur(void)
 	return Cur;
 }
 
-Tree* Tree::SemInclude(TypeLex a, DataType t, TypeObject TypeObject)
+Tree* Tree::SemInclude(TypeLex a, DataType t, TypeObject type)
 {
 	if (DupControl(Cur, a))
 		PrintError("Повторное описание идентификатора ", a);
 	Tree* v; Node* b = new Node();
-	if (TypeObject != ObjFunc)
+	if (type != ObjFunct && type != ObjClass && type != ObjMethod)
 	{
-		memcpy(b->id, a, strlen(a) + 1); b->TypeObject = TypeObject;  b->DataType = t; b->Data = NULL;
+		memcpy(b->id, a, strlen(a) + 1); b->TypeObj = type; b->DataType = t; b->Data = NULL;
 
 		Cur->SetLeft(b); // сделали вершину - переменную
 		Cur = Cur->Left;
 		return Tree::Cur;
 	}
+
+	else if (type == ObjClass)
+	{
+		memcpy(b->id, a, strlen(a) + 1); b->TypeObj = type; b->DataType = t; b->Data = NULL;
+		Cur->SetLeft(b); // сделали вершину - класс
+		Cur = Cur->Left;
+		v = Cur;
+		memcpy(b->id, &"", 2); b->TypeObj = ObjEmpty; b->DataType = DataTypeEmpty; b->Data = NULL;
+
+		Cur->SetRight(b); // сделали пустую вершину
+		Cur = Cur->Right;
+
+		return v;
+	}
+	else if (type == ObjMethod)
+	{
+		memcpy(b->id, a, strlen(a) + 1); b->TypeObj = type; b->DataType = t; b->Data = NULL;
+
+		Cur->SetLeft(b); // сделали вершину - метод
+		Cur = Cur->Left;
+		v = Cur; // это точка возврата после выхода 
+		if (t != DataTypeEmpty) {	//новая область видимости
+			memcpy(b->id, &"", 2); b->TypeObj = ObjEmpty; b->DataType = DataTypeEmpty; b->Data = NULL;
+
+			Cur->SetRight(b); // сделали пустую вершину
+			Cur = Cur->Right;
+		}
+		return v;
+	}
 	else
 	{
-		memcpy(b->id, a, strlen(a) + 1); b->TypeObject = TypeObject; b->DataType = t; b->Data = NULL;
+		memcpy(b->id, a, strlen(a) + 1); b->TypeObj = type; b->DataType = t; b->Data = NULL;
 
 		Cur->SetLeft(b); // сделали вершину - функцию
 		Cur = Cur->Left;
 		v = Cur; // это точка возврата после выхода из функции
-		if (t != TypeEmpty) {	//новая область видимости
-			memcpy(b->id, &"", 2); b->TypeObject = ObjEmpty; b->DataType = TypeEmpty; b->Data = NULL;
+		if (t != DataTypeEmpty) {	//новая область видимости
+			memcpy(b->id, &"", 2); b->TypeObj = ObjEmpty; b->DataType = DataTypeEmpty; b->Data = NULL;
 
 			Cur->SetRight(b); // сделали пустую вершину
 			Cur = Cur->Right;
@@ -132,13 +178,12 @@ Tree* Tree::SemInclude(TypeLex a, DataType t, TypeObject TypeObject)
 		return v;
 	}
 }
-
-
 Tree* Tree::SemGetVar(TypeLex a)
 {
 	Tree* v = FindUp(Cur, a);
 	if (v == NULL) {
-		printf("ОШИБКА: Отсутствует описание идентификатора %s ", a);
+		printf("ОШИБКА: Отсутствует описание идентификатора %s \n", a);
+		exit(0);
 		return NULL;
 	}
 	return v;
@@ -160,7 +205,7 @@ Tree* Tree::SemInCompOperator()
 	return tmp;
 }
 
-void Tree::SemOutCompOperator(Tree* tmp)
+void Tree::SemReturn(Tree* tmp)
 {
 	Cur = tmp;
 }
@@ -168,12 +213,16 @@ void Tree::SemOutCompOperator(Tree* tmp)
 void Tree::PrintError(const char* s, TypeLex a)
 {
 	printf("ОШИБКА: %s - %s \n", s, a);
-
 }
 void Tree::SemControlTypeAssign(Tree* t, DataType t2) {
-	if (t->n->DataType == TypeChar && t2 == TypeDouble) {
-		printf("Возможна потеря данных - присваивание char = double\n");
-		t->n->DataType = TypeEmpty;
+	
+	if (t->info->DataType == DataTypeBool && t2 == DataTypeDouble) {
+		printf("Возможна потеря данных - присваивание bool = double\n");
+		t->info->DataType = DataTypeEmpty;
+	}
+	else if (t->info->DataType == DataTypeInt && t2 == DataTypeDouble) {
+		printf("Возможна потеря данных - присваивание int = double\n");
+		t->info->DataType = DataTypeEmpty;
 	}
 }
 
@@ -185,38 +234,34 @@ void Tree::PrintError(const char* s)
 
 DataType Tree::GetType()
 {
-	return this->n->DataType;
+	return this->info->DataType;
+}
+
+TypeObject Tree::GetObjType()
+{
+	return this->info->TypeObj;
 }
 
 DataType Tree::SemGetTypeExpr(DataType t1, DataType t2, int oper) {
-	if (t1 == TypeEmpty || t2 == TypeEmpty) 
-		return TypeEmpty;
-	if (oper >= typeNotEq && oper <= typeMore) {
-		return TypeDouble; // Операции сравнения возвращают double
-	}
-	else if (oper >= typePlus && oper <= typeMul) {
+	if (t1 == DataTypeEmpty || t2 == DataTypeEmpty) 
+		return DataTypeEmpty;
 
-		if (t1 == TypeChar && t2 == TypeChar)
-			return TypeChar;
+	if (oper >= typeNotEq && oper <= typeMore)
+		return DataTypeDouble; // Операции сравнения возвращают булевый результат
 
-		if ((t1 == TypeChar && t2 == TypeDouble) || 
-			(t1 == TypeDouble && t2 == TypeChar) ||
-			(t1 == TypeDouble && t2 == TypeDouble))
-			return TypeDouble;
+	else if (oper == typePlus || oper == typeMinus || oper == typeMul || oper == typeDiv || oper == typeMod) {
+		if (t1 == DataTypeChar && t2 == DataTypeChar)
+			return DataTypeChar;
+
+		if ((t1 == DataTypeChar && t2 == DataTypeDouble) ||
+			(t1 == DataTypeDouble && t2 == DataTypeChar) ||
+			(t1 == DataTypeDouble && t2 == DataTypeDouble))
+			return DataTypeDouble;
 
 		printf("Несовместимые типы данных для операции\n");
-		return TypeEmpty;
-	}
-	else if (oper == typeEval)
-	{
-		if (t1 == TypeChar && t2 == TypeChar)
-			return TypeChar;
-
-		if ((t1 == TypeChar && t2 == TypeDouble) ||
-			(t1 == TypeDouble && t2 == TypeChar) ||
-			(t1 == TypeDouble && t2 == TypeDouble))
-			return TypeDouble;
+		return DataTypeEmpty;
 	}
 	printf("Неизвестный оператор\n");
-	return TypeEmpty;
+	return DataTypeEmpty;
 };
+
