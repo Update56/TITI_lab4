@@ -178,12 +178,16 @@ Tree* Tree::SemInclude(TypeLex a, DataType t, TypeObject type)
 		return v;
 	}
 }
-Tree* Tree::SemGetVar(TypeLex a)
+
+Tree* Tree::SemGetVar(TypeLex a, bool err)
 {
 	Tree* v = FindUp(Cur, a);
 	if (v == NULL) {
+		if (err)
+		{
 		printf("ОШИБКА: Отсутствует описание идентификатора %s \n", a);
 		exit(0);
+		}
 		return NULL;
 	}
 	return v;

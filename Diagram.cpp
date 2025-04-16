@@ -262,6 +262,12 @@ void TDiagram::Assigment(Tree* var)	// присваивание
 		t = sc->Scanner(l);
 		if (t != typeId)
 			sc->PrintError("ожидалс€ идентификатор переменной", l);
+
+		Tree* v = root->SemGetVar(l, false);
+		if (v != NULL)
+			if (v->GetObjType() == ObjConst)
+				sc->PrintError("ќшибка нельз€ изменить константу", l);
+
 		variable = root->SemGetVar(l);	//проверка существовани€
 		if (variable == NULL) {
 			sc->PrintError();
@@ -302,7 +308,7 @@ DataType TDiagram::Expression()	// выражение
 
 DataType TDiagram::Comparison()	// сравнение
 {
-	TypeLex l; int t, uk1;
+	TypeLex l; int t;
 	DataType type1 = Shift();
 	int nextType = lookForward(1);
 	while ((nextType <= typeMore) && (nextType >= typeLessOrEq))	//пока следующа€ лексема <, >, <= или >=
@@ -457,11 +463,12 @@ void TDiagram::CompOper()	// составной оператор
 			t = sc->Scanner(l);
 			NamedConst();
 		}
-			
 		else if (nextType == typeClass)
 			Class();
-		else
-			Operator();
+		else{ 
+			Operator(); 
+		}
+			
 		nextType = lookForward(1);
 	}
 	t = sc->Scanner(l);
@@ -537,7 +544,7 @@ void TDiagram::Operator()	// оператор
 	}
 	else {
 		t = sc->Scanner(l);
-		sc->PrintError("ожидалс€ оператор", l);
+		sc->PrintError("ќшибка в операторе", l);
 	}
 }
 

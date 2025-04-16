@@ -34,7 +34,6 @@ private:
 	Tree* Up, * Left, * Right;
 	// родитель, левый и правый потомок
 public:
-	std::vector<std::string> CustomTypes = {}; //список кастомных типов
 	static Tree* Cur; // текущий элемент дерева
 	Tree(Tree* l, Tree* r, Tree* u, Node* Data);	// конструктор создает узел с заданными связями и данными
 	Tree();	// конструктор создает новый узел с пустыми связями и данными
@@ -51,7 +50,7 @@ public:
 	void SetCur(Tree* a);			// установить текущий узел дерева
 	Tree* GetCur(void);				// получить значение текущего узла дерева
 	Tree* SemInclude(TypeLex a, DataType t, TypeObject type); // занесение идентификатора a в таблицу с типом t
-	Tree* SemGetVar(TypeLex a);		// найти в таблице переменную
+	Tree* SemGetVar(TypeLex a, bool err = true);		// найти в таблице переменную
 	
 	int DupControl(Tree* Addr, TypeLex a); // проверка идентификатора на повторное описание внутри блока
 	Tree* SemInCompOperator();	//создание нового уровня видимости в составном операторе
