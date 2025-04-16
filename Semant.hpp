@@ -10,6 +10,7 @@ enum TypeObject {
 	ObjClass,	//класс
 	ObjMethod,	//метод класса
 	ObjConst,	//именованая константа
+	ObjArg,		//аргумент метода
 };
 enum DataType {
 	DataTypeEmpty,  
@@ -51,18 +52,17 @@ public:
 	Tree* GetCur(void);				// получить значение текущего узла дерева
 	Tree* SemInclude(TypeLex a, DataType t, TypeObject type); // занесение идентификатора a в таблицу с типом t
 	Tree* SemGetVar(TypeLex a, bool err = true);		// найти в таблице переменную
-	
 	int DupControl(Tree* Addr, TypeLex a); // проверка идентификатора на повторное описание внутри блока
 	Tree* SemInCompOperator();	//создание нового уровня видимости в составном операторе
 	DataType SemGetTypeExpr(DataType t1, DataType t2, int oper);	//получение типа результата операции над выражениями
-	
 	void SemControlTypeAssign(Tree* t, DataType t2);	//проверка соответствия типов при присваивании
-	
 	void SemReturn(Tree* tmp);	//выход на предыдущий уровень видимости из составного оператора
 	void PrintError(const char*, TypeLex a);	//вывод ошибок с идентификатором
 	void PrintError(const char*);	//вывод ошибок без идентификатора
 	DataType GetType();	//получение типа данных идентификатора
-	TypeObject GetObjType();
+	TypeObject GetObjType(); //получение типа объекта
+	Node* GetObjInfo(); //получение типа объекта
+	std::vector<DataType> GetListArgs(Tree* met); //получить лист аргемнтов
 };
 
 #endif

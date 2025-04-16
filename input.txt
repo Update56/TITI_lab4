@@ -1,16 +1,16 @@
 class test{
 double f;
-void func(){
+void func(double a, char b){
 };
 const int i = 0x43;
 };
 int main(){
-char v = 4;
 test a;
 double g = a.i;
 const int p = 0x43;
-p = 43
+char j;
 test b = a;
 a.f = 54;
-a.func();
+a.func(12, 32);
+double n = 79;
 }

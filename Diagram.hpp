@@ -1,6 +1,7 @@
 #ifndef __DIAGRAM
 #define __DIAGRAM
 #include "Scanner.hpp"
+#define _CRT_SECURE_NO_WARNINGS
 #include "Semant.hpp"
 #include <vector>
 class   TDiagram {

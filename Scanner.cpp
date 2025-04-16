@@ -33,6 +33,11 @@ void TScanner::PrintError(const char* err, const char* lex) {
 	exit(0);
 }
 
+
+void TScanner::PrintError(const char* err) {
+	printf("строка %d позиция %d: %s\n", currentLine, ptr - ptrLine, err);
+}
+
 void TScanner::PrintError() {
 	printf("строка %d позиция %d\n", currentLine, ptr - ptrLine);
 }
@@ -105,7 +110,7 @@ start:
 			if (i < MAX_LEX - 1)
 				l[i++] = t[ptr++];
 			else
-				ptr++;
+				PrintError("Привышена длинна ликсемы", "");
 		}
 		for (int j = 0; j < MAX_KEYW; j++) {
 			if (strcmp(l, Keyword[j]) == 0) {

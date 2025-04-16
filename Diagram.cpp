@@ -27,7 +27,7 @@ void TDiagram::Program() {
 			t = sc->Scanner(l);
 			sc->PrintError("отсутствует main", l);
 		}
-		else{
+		else {
 			t = sc->Scanner(l);
 			sc->PrintError("ожидался тип данных, class или const", l);
 		}
@@ -42,11 +42,12 @@ void TDiagram::Class() {
 	t = sc->Scanner(l);
 	if (t != typeClass) sc->PrintError("ожидался Class", l);
 	t = sc->Scanner(l);
-	if (t != typeId) sc->PrintError("ожидался идентификатор Class", l);
+	if (t != typeId) sc->PrintError("ожидался идентификатор класса", "");
 	Tree* v = root->SemInclude(l, DataTypeEmpty, ObjClass); //добавляем класс в таблицу
 
 	t = sc->Scanner(l);
-	if (t != typeLeftBrace) sc->PrintError("ожидалась { в class", l);
+	if (t != typeLeftBrace)
+		sc->PrintError("ожидалась { в class", l);
 	int sP = sc->SetPtr();
 	t = sc->Scanner(l);
 	while (t != typeRightBrace) {
@@ -62,13 +63,13 @@ void TDiagram::Class() {
 			NamedConst();
 		}
 		else if (t == typeEnd) {
-			sc->PrintError("не завёршенный класс", l);
+			sc->PrintError("не завёршенный класс", "");
 		}
 		else if (t == typeClass)
 		{
-			sc->PrintError("Не поддерживаются вложенные классы", l);
+			sc->PrintError("Не поддерживаются вложенные классы", "");
 		}
-		else{
+		else {
 			sc->PrintError("ожидались data или method в class", l);
 		}
 		sP = sc->SetPtr();
@@ -76,7 +77,7 @@ void TDiagram::Class() {
 	}
 	t = sc->Scanner(l);
 	if (t != typeSemicolon)
-		sc->PrintError("ожидался символ ; (met)", l);
+		sc->PrintError("ожидался символ ; (class)", l);
 	root->SemReturn(v);
 }
 
@@ -90,7 +91,7 @@ void TDiagram::Method() {
 	Tree* v = root->SemInclude(l, DataTypeVoid, ObjMethod); // метод в таблицу
 
 	t = sc->Scanner(l);
-	if (t != typeLeftBracket){
+	if (t != typeLeftBracket) {
 		sc->PrintError("ожидался символ ( (met)", l);
 	}
 	int type = lookForward(1);
@@ -101,7 +102,7 @@ void TDiagram::Method() {
 		if (t != typeId) {
 			sc->PrintError("ожидался идентификатор аргумента (met)", l);
 		}
-		Tree* v = root->SemInclude(l, dataType, ObjVar);
+		Tree* v = root->SemInclude(l, dataType, ObjArg);
 		t = sc->Scanner(l);
 		if (t == typeComma)
 		{
@@ -168,7 +169,7 @@ DataType TDiagram::NamedConst()
 	DataType type = Type();
 	Tree* constant;
 	t = sc->Scanner(l);
-	if (t != typeId) 
+	if (t != typeId)
 		sc->PrintError("ожидался идентификатор константы", l);
 
 	if (type != DataTypeEmpty) {
@@ -180,13 +181,15 @@ DataType TDiagram::NamedConst()
 		constant = root->SemInclude(l, DataTypeEmpty, ObjConst);
 	}
 	int nextType = lookForward(1);
-	if (nextType != typeEval)
+	if (nextType != typeEval) {
+		t = sc->Scanner(l);
 		sc->PrintError("Для константы требуется инициализатор", l);
+	}
 	else if (nextType == typeEval) {
 		t = sc->Scanner(l);
 		DataType type2 = Expression();
 		root->SemControlTypeAssign(constant, type2);
-		if (constant->GetType() == DataTypeEmpty) 
+		if (constant->GetType() == DataTypeEmpty)
 			sc->PrintError();
 	}
 	t = sc->Scanner(l);
@@ -225,7 +228,7 @@ DataType TDiagram::Variable(DataType type, TypeLex lex)
 	if (t != typeId)
 		sc->PrintError("ожидался идентификатор переменной", l);
 
-	if (type != DataTypeEmpty) {	
+	if (type != DataTypeEmpty) {
 		root->SemInclude(l, type, ObjVar);
 	}
 	variable = root->SemGetVar(l);
@@ -247,7 +250,7 @@ DataType TDiagram::Variable(DataType type, TypeLex lex)
 		t = sc->Scanner(l);
 		DataType type2 = Expression();
 		root->SemControlTypeAssign(variable, type2);
-		if (variable->GetType() == DataTypeEmpty) 
+		if (variable->GetType() == DataTypeEmpty)
 			sc->PrintError();
 	}
 	return variable->GetType();
@@ -277,13 +280,13 @@ void TDiagram::Assigment(Tree* var)	// присваивание
 		if (t != typeEval)
 			sc->PrintError("ожидался символ =", l);
 	}
-	else{
+	else {
 		variable = var;
 	}
 
 	DataType type = Expression();
 	root->SemControlTypeAssign(variable, type);
-	if (variable->GetType() == DataTypeEmpty) 
+	if (variable->GetType() == DataTypeEmpty)
 		sc->PrintError();
 }
 
@@ -405,7 +408,7 @@ DataType TDiagram::Elementary()	// эл.выражения
 		if (nextType == typeLeftBracket) {
 			type = FuncCall();
 		}
-		else if(nextType == typeAccessOperator)
+		else if (nextType == typeAccessOperator)
 		{
 			t = sc->Scanner(l);
 			Tree* var = ClassAccsess(l);
@@ -422,7 +425,7 @@ DataType TDiagram::FuncCall()	// вызов функции
 {
 	TypeLex l; int t;
 	t = sc->Scanner(l);
-	if (t != typeId) 
+	if (t != typeId)
 		sc->PrintError("ожидался идентификатор функции", l);
 
 	DataType type = root->GetType();
@@ -465,10 +468,10 @@ void TDiagram::CompOper()	// составной оператор
 		}
 		else if (nextType == typeClass)
 			Class();
-		else{ 
-			Operator(); 
+		else {
+			Operator();
 		}
-			
+
 		nextType = lookForward(1);
 	}
 	t = sc->Scanner(l);
@@ -488,50 +491,67 @@ void TDiagram::Operator()	// оператор
 		CompOper();	//если фигурная скобка - составной оператор
 		root->SemReturn(tmp);
 	}
-	else if (nextType == typeId ) {
-
-			nextType = lookForward(2);
-			if (nextType == typeLeftBracket) {	//если круглая скобка - вызов функции
-				FuncCall();
-				t = sc->Scanner(l);
+	else if (nextType == typeId) {
+		nextType = lookForward(2);
+		if (nextType == typeLeftBracket) {	//если круглая скобка - вызов функции
+			FuncCall();
+			t = sc->Scanner(l);
+		}
+		else if (nextType == typeEval) { //если равно - присваивание
+			Assigment();
+			t = sc->Scanner(l);
+		}
+		else if (nextType == typeAccessOperator) { //если точка оператор доступа
+			t = sc->Scanner(l);
+			if (root->SemGetVar(l, false)->GetObjType() == ObjClass) {
+				sc->PrintError("Является идентификатором класса", l);
 			}
-			else if (nextType == typeEval) { //если равно - присваивание
-				Assigment();
-				t = sc->Scanner(l);
-			}
-			else if (nextType == typeAccessOperator) { //если точка оператор доступа
-				t = sc->Scanner(l);
-				Tree* var = ClassAccsess(l);
-				t = sc->Scanner(l);
-				if (var->GetObjType() == ObjMethod) {
-					do
-					{
-					t = sc->Scanner(l);
-					} while (t != typeSemicolon);
-				}
-				else if (t == typeEval)
+			Tree* var = ClassAccsess(l);
+			t = sc->Scanner(l);
+			if (var->GetObjType() == ObjMethod) {
+				int countArg = 0;
+				auto ArgList = var->GetListArgs(var->GetRight());
+				do
 				{
-					Assigment(var);
 					t = sc->Scanner(l);
+					if (t == typeComma) {
+						countArg++;
+					}
+				} while (t != typeRightBracket);
+				if (countArg != ArgList.size() - 1) {
+					std::string name = var->GetObjInfo()->id;
+					name = name + ": неверное кол-вл аргументов метода";
+					sc->PrintError(name.c_str());
 				}
+				t = sc->Scanner(l);
 			}
-			else if (nextType == typeId)
+			else if (t == typeEval)
 			{
-				t = sc->Scanner(l);
-				Tree* f = root->Cur->FindUp(l);
-				if (f == NULL)
+				if (var->GetObjType() == ObjConst)
 				{
-					sc->PrintError("Неверный идентификатор", l);
+					sc->PrintError("Ошибка нельзя изменить константу", l);
 				}
-				Variable(DataTypeCustom, l);
+				Assigment(var);
 				t = sc->Scanner(l);
 			}
-			else {
-				t = sc->Scanner(l);
-				sc->PrintError("ожидался идентификатор", l);
+		}
+		else if (nextType == typeId)
+		{
+			t = sc->Scanner(l);
+			Tree* f = root->Cur->FindUp(l);
+			if (f == NULL)
+			{
+				sc->PrintError("Неверный идентификатор", l);
 			}
-		
-		if (t != typeSemicolon) 
+			Variable(DataTypeCustom, l);
+			t = sc->Scanner(l);
+		}
+		else {
+			t = sc->Scanner(l);
+			sc->PrintError("ожидался идентификатор", l);
+		}
+
+		if (t != typeSemicolon)
 			sc->PrintError("после оператора ожидался символ ;", l);
 	}
 	else if (nextType == typeSemicolon) {
@@ -548,17 +568,17 @@ void TDiagram::Operator()	// оператор
 	}
 }
 
-Tree* TDiagram::ClassAccsess(TypeLex lex){
+Tree* TDiagram::ClassAccsess(TypeLex lex) {
 	TypeLex l; int t;
 	Tree* f = root->SemGetVar(lex); //находим экзепляр класса
 	t = sc->Scanner(l);
-	if (t != typeAccessOperator){
+	if (t != typeAccessOperator) {
 		sc->PrintError("Ожидался оператор доступа", l);
 	}
 	t = sc->Scanner(l);
 	f = f->GetRight(); //переходим ветку с классом
 	f = f->FindDownOneLevel(f, l); //ищем член класса
-	if (f == NULL){
+	if (f == NULL) {
 		printf("ОШИБКА: обращение к отсутствующему члену класса %s \n", l);
 		exit(0);
 	}
@@ -579,15 +599,20 @@ void TDiagram::DoWhile()
 {
 	TypeLex l; int t;
 	t = sc->Scanner(l);
-	if (t != typeDo) sc->PrintError("ожидался do", l);
+	if (t != typeDo)
+		sc->PrintError("ожидался do", l);
 	CompOper();
 	t = sc->Scanner(l);
-	if (t != typeWhile) sc->PrintError("ожидался while", l);
+	if (t != typeWhile)
+		sc->PrintError("ожидался while", l);
 	t = sc->Scanner(l);
-	if (t != typeLeftBracket) sc->PrintError("ожидалась (", l);
+	if (t != typeLeftBracket)
+		sc->PrintError("ожидалась (", l);
+	if (lookForward(1) == typeRightBracket)
+		sc->PrintError("Ожидалось сравнение в while(<>)", "");
 	Expression();
 	t = sc->Scanner(l);
-	if (t != typeRightBracket) 
+	if (t != typeRightBracket)
 		sc->PrintError("ожидалась )", l);
 	t = sc->Scanner(l);
 	if (t != typeSemicolon) sc->PrintError("ожидалась ;", l);
